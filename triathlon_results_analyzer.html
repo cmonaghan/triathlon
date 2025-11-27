@@ -417,6 +417,9 @@
                 const athleteRun = timeToSeconds(athlete.Run_Time);
                 const athleteOverall = timeToSeconds(athlete.Finish_Time);
 
+                // Calculate place within filtered group
+                const filteredPlace = overallTimes.filter(t => t <= athleteOverall).length;
+
                 setAthleteResult({
                     ...athlete,
                     swimSeconds: athleteSwim,
@@ -427,6 +430,7 @@
                     bikePercentile: calculatePercentile(athleteBike, bikeTimes),
                     runPercentile: calculatePercentile(athleteRun, runTimes),
                     overallPercentile: calculatePercentile(athleteOverall, overallTimes),
+                    filteredPlace: filteredPlace,
                     comparisonGroup: {
                         event: selectedEvent,
                         gender: selectedGender,
@@ -652,7 +656,7 @@
                                         </div>
                                         <div className="info-item">
                                             <div className="label">Overall Place</div>
-                                            <div className="value">#{athleteResult.Place}</div>
+                                            <div className="value">#{athleteResult.filteredPlace} of {athleteResult.comparisonGroup.totalAthletes}</div>
                                         </div>
                                         <div className="info-item">
                                             <div className="label">Club</div>
@@ -696,7 +700,7 @@
                                         <div className="stat-value">{athleteResult.Finish_Time}</div>
                                         <div className="stat-detail">
                                             {athleteResult.overallPercentile}th percentile
-                                            <br/>Place: {athleteResult.Place}
+                                            <br/>Place: {athleteResult.filteredPlace} of {athleteResult.comparisonGroup.totalAthletes}
                                         </div>
                                     </div>
                                 </div>
