@@ -387,6 +387,7 @@
                 if (!searchName.trim() || !selectedEvent) {
                     if (!searchName.trim()) {
                         setError(null);
+                        setAthleteResult(null);
                     }
                     return;
                 }
@@ -441,7 +442,7 @@
             }, [searchName, selectedEvent, filteredData, data]);
 
             const generateDistributionData = (segment) => {
-                if (!athleteResult) return [];
+                if (!filteredData.length) return [];
 
                 const times = filteredData.map(row => {
                     switch(segment) {
@@ -453,9 +454,9 @@
                     }
                 }).filter(Boolean).sort((a, b) => a - b);
 
-                const athleteTime = athleteResult[`${segment}Seconds`];
+                if (!times.length) return [];
 
-                if (!times.length || !athleteTime) return [];
+                const athleteTime = athleteResult ? athleteResult[`${segment}Seconds`] : null;
 
                 const min = Math.min(...times);
                 const max = Math.max(...times);
@@ -466,7 +467,7 @@
                     const binStart = min + i * binSize;
                     const binEnd = binStart + binSize;
                     const count = times.filter(t => t >= binStart && t < binEnd).length;
-                    const isAthleteBin = athleteTime >= binStart && athleteTime < binEnd;
+                    const isAthleteBin = athleteTime ? (athleteTime >= binStart && athleteTime < binEnd) : false;
 
                     return {
                         range: `${secondsToTime(binStart)}`,
@@ -481,7 +482,7 @@
             };
 
             useEffect(() => {
-                if (!athleteResult) return;
+                if (!selectedEvent || !filteredData.length) return;
 
                 // Destroy existing charts
                 Object.values(chartInstances.current).forEach(chart => {
@@ -501,6 +502,8 @@
                     if (!canvasRef.current) return;
 
                     const distributionData = generateDistributionData(segment);
+
+                    if (!distributionData.length) return;
 
                     const ctx = canvasRef.current.getContext('2d');
                     chartInstances.current[segment] = new Chart(ctx, {
@@ -564,7 +567,7 @@
                         if (chart) chart.destroy();
                     });
                 };
-            }, [athleteResult, filteredData]);
+            }, [selectedEvent, filteredData, athleteResult]);
 
             if (loading) {
                 return <div className="loading">Loading triathlon data...</div>;
@@ -637,7 +640,7 @@
                             <div className="error-message">{error}</div>
                         )}
 
-                        {athleteResult && (
+                        {athleteResult && searchName.trim() && (
                             <div className="results-section">
                                 <div className="athlete-card">
                                     <h2>{athleteResult.Name}</h2>
@@ -704,13 +707,19 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        )}
 
+                        {selectedEvent && filteredData.length > 0 && (
+                            <div className="results-section">
                                 <div className="chart-container">
                                     <h3>
                                         Swim Time Distribution
-                                        <span className="percentile-badge">
-                                            {athleteResult.swimPercentile}th Percentile
-                                        </span>
+                                        {athleteResult && athleteResult.swimPercentile && (
+                                            <span className="percentile-badge">
+                                                {athleteResult.swimPercentile}th Percentile
+                                            </span>
+                                        )}
                                     </h3>
                                     <div style={{height: '300px', position: 'relative'}}>
                                         <canvas ref={swimChartRef}></canvas>
@@ -720,9 +729,11 @@
                                 <div className="chart-container">
                                     <h3>
                                         Bike Time Distribution
-                                        <span className="percentile-badge">
-                                            {athleteResult.bikePercentile}th Percentile
-                                        </span>
+                                        {athleteResult && athleteResult.bikePercentile && (
+                                            <span className="percentile-badge">
+                                                {athleteResult.bikePercentile}th Percentile
+                                            </span>
+                                        )}
                                     </h3>
                                     <div style={{height: '300px', position: 'relative'}}>
                                         <canvas ref={bikeChartRef}></canvas>
@@ -732,9 +743,11 @@
                                 <div className="chart-container">
                                     <h3>
                                         Run Time Distribution
-                                        <span className="percentile-badge">
-                                            {athleteResult.runPercentile}th Percentile
-                                        </span>
+                                        {athleteResult && athleteResult.runPercentile && (
+                                            <span className="percentile-badge">
+                                                {athleteResult.runPercentile}th Percentile
+                                            </span>
+                                        )}
                                     </h3>
                                     <div style={{height: '300px', position: 'relative'}}>
                                         <canvas ref={runChartRef}></canvas>
@@ -744,9 +757,11 @@
                                 <div className="chart-container">
                                     <h3>
                                         Overall Time Distribution
-                                        <span className="percentile-badge">
-                                            {athleteResult.overallPercentile}th Percentile
-                                        </span>
+                                        {athleteResult && athleteResult.overallPercentile && (
+                                            <span className="percentile-badge">
+                                                {athleteResult.overallPercentile}th Percentile
+                                            </span>
+                                        )}
                                     </h3>
                                     <div style={{height: '300px', position: 'relative'}}>
                                         <canvas ref={overallChartRef}></canvas>
@@ -755,14 +770,9 @@
                             </div>
                         )}
 
-                        {!athleteResult && !error && selectedEvent && (
+                        {!athleteResult && !error && !selectedEvent && (
                             <div className="no-results">
-                                <p>Enter an athlete name to see results</p>
-                                <p style={{marginTop: '10px', fontSize: '0.9em', color: '#bbb'}}>
-                                    Currently viewing: {selectedEvent}
-                                    {selectedGender !== 'All' && ` - ${selectedGender}`}
-                                    {selectedAgeGroup !== 'All' && ` - ${selectedAgeGroup}`}
-                                </p>
+                                <p>Select an event and enter an athlete name to see detailed results</p>
                             </div>
                         )}
                     </div>
