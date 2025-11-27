@@ -8,6 +8,7 @@
     <link rel="alternate icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚴</text></svg>">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
@@ -345,13 +346,8 @@
 <body>
     <div id="root"></div>
 
-    <script type="text/javascript">
-const {
-  useState,
-  useEffect,
-  useMemo,
-  useRef
-} = React;
+    <script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
 function TriathlonAnalyzer() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -712,236 +708,243 @@ function TriathlonAnalyzer() {
     }
   };
   if (loading) {
-    return /*#__PURE__*/React.createElement("div", {
-      className: "loading"
-    }, "Loading triathlon data...");
+    return <div className="loading">Loading triathlon data...</div>;
   }
-  return /*#__PURE__*/React.createElement("div", {
-    className: "container"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "header"
-  }, /*#__PURE__*/React.createElement("h1", null, "\uD83C\uDFCA\u200D\u2642\uFE0F\uD83D\uDEB4\u200D\u2640\uFE0F\uD83C\uDFC3\u200D\u2642\uFE0F Triathlon Results Analyzer \uD83C\uDFCA\u200D\u2642\uFE0F\uD83D\uDEB4\u200D\u2640\uFE0F\uD83C\uDFC3\u200D\u2642\uFE0F"), /*#__PURE__*/React.createElement("p", null, "Compare your performance against other athletes."), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("p", null, " This site uses race data from the", ' ', /*#__PURE__*/React.createElement("a", {
-    href: "https://my.raceresult.com/367536/",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    style: {
-      color: 'white',
-      textDecoration: 'underline',
-      fontWeight: '600'
-    }
-  }, "2025 Alpha Win Napa Valley Fall Triathlon"), ' ', "held on October 25, 2025 in Napa, California."), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("p", null, "Note that due to weather conditions on the day of the race, the swim portion was cancelled and replaced with a run of similar distance.")), /*#__PURE__*/React.createElement("div", {
-    className: "content"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "search-section"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "form-group"
-  }, /*#__PURE__*/React.createElement("label", null, "Athlete Name"), /*#__PURE__*/React.createElement("div", {
-    className: "autocomplete-container",
-    ref: autocompleteRef
-  }, /*#__PURE__*/React.createElement("input", {
-    ref: inputRef,
-    type: "text",
-    placeholder: "Enter athlete name...",
-    value: searchName,
-    onChange: e => {
-      setSearchName(e.target.value);
-      setShowAutocomplete(true);
-      setSelectedIndex(-1);
-    },
-    onFocus: () => {
-      if (autocompleteSuggestions.length > 0) {
-        setShowAutocomplete(true);
-      }
-    },
-    onKeyDown: handleKeyDown
-  }), showAutocomplete && autocompleteSuggestions.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "autocomplete-dropdown"
-  }, autocompleteSuggestions.map((athlete, index) => /*#__PURE__*/React.createElement("div", {
-    key: index,
-    className: `autocomplete-item ${selectedIndex === index ? 'selected' : ''}`,
-    onClick: () => handleNameSelect(athlete.Name),
-    onMouseEnter: () => setSelectedIndex(index)
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "autocomplete-item-name"
-  }, athlete.Name), /*#__PURE__*/React.createElement("div", {
-    className: "autocomplete-item-details"
-  }, athlete.Event, " \u2022 ", athlete.Gender, " \u2022 ", extractAgeGroup(athlete.Age_Group))))))), /*#__PURE__*/React.createElement("div", {
-    className: "form-row"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "form-group"
-  }, /*#__PURE__*/React.createElement("label", null, "Event"), /*#__PURE__*/React.createElement("select", {
-    value: selectedEvent,
-    onChange: e => setSelectedEvent(e.target.value),
-    disabled: !!searchName.trim(),
-    style: searchName.trim() ? {
-      opacity: 0.6,
-      cursor: 'not-allowed'
-    } : {}
-  }, /*#__PURE__*/React.createElement("option", {
-    value: ""
-  }, "Select Event"), events.map(event => /*#__PURE__*/React.createElement("option", {
-    key: event,
-    value: event
-  }, event)))), /*#__PURE__*/React.createElement("div", {
-    className: "form-group"
-  }, /*#__PURE__*/React.createElement("label", null, "Gender Filter"), /*#__PURE__*/React.createElement("select", {
-    value: selectedGender,
-    onChange: e => setSelectedGender(e.target.value)
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "All"
-  }, "All Genders"), /*#__PURE__*/React.createElement("option", {
-    value: "Male"
-  }, "Male"), /*#__PURE__*/React.createElement("option", {
-    value: "Female"
-  }, "Female"), /*#__PURE__*/React.createElement("option", {
-    value: "Agender"
-  }, "Agender"))), /*#__PURE__*/React.createElement("div", {
-    className: "form-group"
-  }, /*#__PURE__*/React.createElement("label", null, "Age Group Filter"), /*#__PURE__*/React.createElement("select", {
-    value: selectedAgeGroup,
-    onChange: e => setSelectedAgeGroup(e.target.value)
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "All"
-  }, "All Age Groups"), ageGroups.map(ag => /*#__PURE__*/React.createElement("option", {
-    key: ag,
-    value: ag
-  }, ag)))))), error && /*#__PURE__*/React.createElement("div", {
-    className: "error-message"
-  }, error), athleteResult && searchName.trim() && /*#__PURE__*/React.createElement("div", {
-    className: "results-section"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "athlete-card"
-  }, /*#__PURE__*/React.createElement("h2", null, athleteResult.Name), /*#__PURE__*/React.createElement("div", {
-    className: "athlete-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "info-item"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "label"
-  }, "Age"), /*#__PURE__*/React.createElement("div", {
-    className: "value"
-  }, athleteResult.Age || 'N/A')), /*#__PURE__*/React.createElement("div", {
-    className: "info-item"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "label"
-  }, "Gender"), /*#__PURE__*/React.createElement("div", {
-    className: "value"
-  }, athleteResult.Gender)), /*#__PURE__*/React.createElement("div", {
-    className: "info-item"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "label"
-  }, "Age Group"), /*#__PURE__*/React.createElement("div", {
-    className: "value"
-  }, extractAgeGroup(athleteResult.Age_Group))), /*#__PURE__*/React.createElement("div", {
-    className: "info-item"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "label"
-  }, "Overall Place"), /*#__PURE__*/React.createElement("div", {
-    className: "value"
-  }, "#", athleteResult.filteredPlace, " of ", athleteResult.comparisonGroup.totalAthletes)), /*#__PURE__*/React.createElement("div", {
-    className: "info-item"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "label"
-  }, "Club"), /*#__PURE__*/React.createElement("div", {
-    className: "value"
-  }, athleteResult.Club || 'N/A'))), /*#__PURE__*/React.createElement("p", {
-    style: {
-      marginTop: '15px',
-      fontSize: '0.9em',
-      opacity: '0.9'
-    }
-  }, "Comparing against: ", athleteResult.comparisonGroup.totalAthletes, " athletes", selectedGender !== 'All' && ` (${selectedGender})`, selectedAgeGroup !== 'All' && ` in ${selectedAgeGroup}`)), /*#__PURE__*/React.createElement("div", {
-    className: "stats-grid"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "stat-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "stat-label"
-  }, "\uD83C\uDFCA\u200D\u2642\uFE0F Swim Time"), /*#__PURE__*/React.createElement("div", {
-    className: "stat-value"
-  }, athleteResult.Swim_Time), /*#__PURE__*/React.createElement("div", {
-    className: "stat-detail"
-  }, athleteResult.swimPercentile, "th percentile", /*#__PURE__*/React.createElement("br", null), "Rank: ", athleteResult.Swim_Rank)), /*#__PURE__*/React.createElement("div", {
-    className: "stat-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "stat-label"
-  }, "\uD83D\uDEB4\u200D\u2640\uFE0F Bike Time"), /*#__PURE__*/React.createElement("div", {
-    className: "stat-value"
-  }, athleteResult.Bike_Time), /*#__PURE__*/React.createElement("div", {
-    className: "stat-detail"
-  }, athleteResult.bikePercentile, "th percentile", /*#__PURE__*/React.createElement("br", null), "Rank: ", athleteResult.Bike_Rank, " (", athleteResult.Bike_MPH, " mph)")), /*#__PURE__*/React.createElement("div", {
-    className: "stat-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "stat-label"
-  }, "\uD83C\uDFC3\u200D\u2642\uFE0F Run Time"), /*#__PURE__*/React.createElement("div", {
-    className: "stat-value"
-  }, athleteResult.Run_Time), /*#__PURE__*/React.createElement("div", {
-    className: "stat-detail"
-  }, athleteResult.runPercentile, "th percentile", /*#__PURE__*/React.createElement("br", null), "Rank: ", athleteResult.Run_Rank, " (", athleteResult.Run_Pace, " pace)")), /*#__PURE__*/React.createElement("div", {
-    className: "stat-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "stat-label"
-  }, "\u23F1\uFE0F Overall Time"), /*#__PURE__*/React.createElement("div", {
-    className: "stat-value"
-  }, athleteResult.Finish_Time), /*#__PURE__*/React.createElement("div", {
-    className: "stat-detail"
-  }, athleteResult.overallPercentile, "th percentile", /*#__PURE__*/React.createElement("br", null), "Place: ", athleteResult.filteredPlace, " of ", athleteResult.comparisonGroup.totalAthletes)))), selectedEvent && filteredData.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "results-section"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "chart-container"
-  }, /*#__PURE__*/React.createElement("h3", null, "Swim Time Distribution", athleteResult && athleteResult.swimPercentile && /*#__PURE__*/React.createElement("span", {
-    className: "percentile-badge"
-  }, athleteResult.swimPercentile, "th Percentile")), /*#__PURE__*/React.createElement("span", {
-    className: "stat-label-note"
-  }, "Note: Swim portion was cancelled and replaced with a run of similar distance"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '300px',
-      position: 'relative'
-    }
-  }, /*#__PURE__*/React.createElement("canvas", {
-    ref: swimChartRef
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "chart-container"
-  }, /*#__PURE__*/React.createElement("h3", null, "Bike Time Distribution", athleteResult && athleteResult.bikePercentile && /*#__PURE__*/React.createElement("span", {
-    className: "percentile-badge"
-  }, athleteResult.bikePercentile, "th Percentile")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '300px',
-      position: 'relative'
-    }
-  }, /*#__PURE__*/React.createElement("canvas", {
-    ref: bikeChartRef
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "chart-container"
-  }, /*#__PURE__*/React.createElement("h3", null, "Run Time Distribution", athleteResult && athleteResult.runPercentile && /*#__PURE__*/React.createElement("span", {
-    className: "percentile-badge"
-  }, athleteResult.runPercentile, "th Percentile")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '300px',
-      position: 'relative'
-    }
-  }, /*#__PURE__*/React.createElement("canvas", {
-    ref: runChartRef
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "chart-container"
-  }, /*#__PURE__*/React.createElement("h3", null, "Overall Time Distribution", athleteResult && athleteResult.overallPercentile && /*#__PURE__*/React.createElement("span", {
-    className: "percentile-badge"
-  }, athleteResult.overallPercentile, "th Percentile")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '300px',
-      position: 'relative'
-    }
-  }, /*#__PURE__*/React.createElement("canvas", {
-    ref: overallChartRef
-  })))), !athleteResult && !error && !selectedEvent && /*#__PURE__*/React.createElement("div", {
-    className: "no-results"
-  }, /*#__PURE__*/React.createElement("p", null, "Select an event and enter an athlete name to see detailed results"))), /*#__PURE__*/React.createElement("div", {
-    className: "footer"
-  }, /*#__PURE__*/React.createElement("p", null, "Created by Christian Monaghan. See more silly projects at ", /*#__PURE__*/React.createElement("a", {
-    href: "https://woolgathering.io",
-    target: "_blank",
-    rel: "noopener noreferrer"
-  }, "woolgathering.io"), ".")));
+
+  return (
+    <div className="container">
+      <div className="header">
+        <h1>🏊‍♂️🚴‍♀️🏃‍♂️ Triathlon Results Analyzer 🏊‍♂️🚴‍♀️🏃‍♂️</h1>
+        <p>Compare your performance against other athletes.</p>
+        <br />
+        <p>
+          This site uses race data from the{' '}
+          <a
+            href="https://my.raceresult.com/367536/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{color: 'white', textDecoration: 'underline', fontWeight: '600'}}
+          >
+            2025 Alpha Win Napa Valley Fall Triathlon
+          </a>
+          {' '}held on October 25, 2025 in Napa, California.
+        </p>
+        <br />
+        <p className="header-note">Note that due to weather conditions on the day of the race, the swim portion was cancelled and replaced with a run of similar distance.</p>
+      </div>
+      <div className="content">
+        <div className="search-section">
+          <div className="form-group">
+            <label>Athlete Name</label>
+            <div className="autocomplete-container" ref={autocompleteRef}>
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Enter athlete name..."
+                value={searchName}
+                onChange={(e) => {
+                  setSearchName(e.target.value);
+                  setShowAutocomplete(true);
+                  setSelectedIndex(-1);
+                }}
+                onFocus={() => {
+                  if (autocompleteSuggestions.length > 0) {
+                    setShowAutocomplete(true);
+                  }
+                }}
+                onKeyDown={handleKeyDown}
+              />
+              {showAutocomplete && autocompleteSuggestions.length > 0 && (
+                <div className="autocomplete-dropdown">
+                  {autocompleteSuggestions.map((athlete, index) => (
+                    <div
+                      key={index}
+                      className={`autocomplete-item ${selectedIndex === index ? 'selected' : ''}`}
+                      onClick={() => handleNameSelect(athlete.Name)}
+                      onMouseEnter={() => setSelectedIndex(index)}
+                    >
+                      <div className="autocomplete-item-name">{athlete.Name}</div>
+                      <div className="autocomplete-item-details">
+                        {athlete.Event} • {athlete.Gender} • {extractAgeGroup(athlete.Age_Group)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Event</label>
+              <select
+                value={selectedEvent}
+                onChange={(e) => setSelectedEvent(e.target.value)}
+                disabled={!!searchName.trim()}
+                style={searchName.trim() ? {opacity: 0.6, cursor: 'not-allowed'} : {}}
+              >
+                <option value="">Select Event</option>
+                {events.map(event => (
+                  <option key={event} value={event}>{event}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Gender Filter</label>
+              <select value={selectedGender} onChange={(e) => setSelectedGender(e.target.value)}>
+                <option value="All">All Genders</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Agender">Agender</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Age Group Filter</label>
+              <select value={selectedAgeGroup} onChange={(e) => setSelectedAgeGroup(e.target.value)}>
+                <option value="All">All Age Groups</option>
+                {ageGroups.map(ag => (
+                  <option key={ag} value={ag}>{ag}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+
+        {athleteResult && searchName.trim() && (
+          <div className="results-section">
+            <div className="athlete-card">
+              <h2>{athleteResult.Name}</h2>
+              <div className="athlete-info">
+                <div className="info-item">
+                  <div className="label">Age</div>
+                  <div className="value">{athleteResult.Age || 'N/A'}</div>
+                </div>
+                <div className="info-item">
+                  <div className="label">Gender</div>
+                  <div className="value">{athleteResult.Gender}</div>
+                </div>
+                <div className="info-item">
+                  <div className="label">Age Group</div>
+                  <div className="value">{extractAgeGroup(athleteResult.Age_Group)}</div>
+                </div>
+                <div className="info-item">
+                  <div className="label">Overall Place</div>
+                  <div className="value">#{athleteResult.filteredPlace} of {athleteResult.comparisonGroup.totalAthletes}</div>
+                </div>
+                <div className="info-item">
+                  <div className="label">Club</div>
+                  <div className="value">{athleteResult.Club || 'N/A'}</div>
+                </div>
+              </div>
+              <p style={{marginTop: '15px', fontSize: '0.9em', opacity: '0.9'}}>
+                Comparing against: {athleteResult.comparisonGroup.totalAthletes} athletes
+                {selectedGender !== 'All' && ` (${selectedGender})`}
+                {selectedAgeGroup !== 'All' && ` in ${selectedAgeGroup}`}
+              </p>
+            </div>
+
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">🏊‍♂️ Swim Time</div>
+                <div className="stat-value">{athleteResult.Swim_Time}</div>
+                <div className="stat-detail">
+                  {athleteResult.swimPercentile}th percentile<br />
+                  Rank: {athleteResult.Swim_Rank}
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">🚴‍♀️ Bike Time</div>
+                <div className="stat-value">{athleteResult.Bike_Time}</div>
+                <div className="stat-detail">
+                  {athleteResult.bikePercentile}th percentile<br />
+                  Rank: {athleteResult.Bike_Rank} ({athleteResult.Bike_MPH} mph)
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">🏃‍♂️ Run Time</div>
+                <div className="stat-value">{athleteResult.Run_Time}</div>
+                <div className="stat-detail">
+                  {athleteResult.runPercentile}th percentile<br />
+                  Rank: {athleteResult.Run_Rank} ({athleteResult.Run_Pace} pace)
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">⏱️ Overall Time</div>
+                <div className="stat-value">{athleteResult.Finish_Time}</div>
+                <div className="stat-detail">
+                  {athleteResult.overallPercentile}th percentile<br />
+                  Place: #{athleteResult.filteredPlace} of {athleteResult.comparisonGroup.totalAthletes}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedEvent && filteredData.length > 0 && (
+          <div className="results-section">
+            <div className="chart-container">
+              <h3>
+                Swim Time Distribution
+                {athleteResult && athleteResult.swimPercentile && (
+                  <span className="percentile-badge">{athleteResult.swimPercentile}th Percentile</span>
+                )}
+              </h3>
+              <span className="stat-label-note">Note: Swim portion was cancelled and replaced with a run of similar distance</span>
+              <div style={{height: '300px', position: 'relative'}}>
+                <canvas ref={swimChartRef}></canvas>
+              </div>
+            </div>
+            <div className="chart-container">
+              <h3>
+                Bike Time Distribution
+                {athleteResult && athleteResult.bikePercentile && (
+                  <span className="percentile-badge">{athleteResult.bikePercentile}th Percentile</span>
+                )}
+              </h3>
+              <div style={{height: '300px', position: 'relative'}}>
+                <canvas ref={bikeChartRef}></canvas>
+              </div>
+            </div>
+            <div className="chart-container">
+              <h3>
+                Run Time Distribution
+                {athleteResult && athleteResult.runPercentile && (
+                  <span className="percentile-badge">{athleteResult.runPercentile}th Percentile</span>
+                )}
+              </h3>
+              <div style={{height: '300px', position: 'relative'}}>
+                <canvas ref={runChartRef}></canvas>
+              </div>
+            </div>
+            <div className="chart-container">
+              <h3>
+                Overall Time Distribution
+                {athleteResult && athleteResult.overallPercentile && (
+                  <span className="percentile-badge">{athleteResult.overallPercentile}th Percentile</span>
+                )}
+              </h3>
+              <div style={{height: '300px', position: 'relative'}}>
+                <canvas ref={overallChartRef}></canvas>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!athleteResult && !error && !selectedEvent && (
+          <div className="no-results">
+            <p>Select an event and enter an athlete name to see detailed results</p>
+          </div>
+        )}
+      </div>
+      <div className="footer">
+        <p>Created by Christian Monaghan. See more silly projects at <a href="https://woolgathering.io" target="_blank" rel="noopener noreferrer">woolgathering.io</a>.</p>
+      </div>
+    </div>
+  );
 }
-ReactDOM.render(/*#__PURE__*/React.createElement(TriathlonAnalyzer, null), document.getElementById('root'));
-</script></script>
+
+ReactDOM.render(<TriathlonAnalyzer />, document.getElementById('root'));
+    </script>
 </body>
 </html>
