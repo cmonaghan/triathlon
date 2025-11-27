@@ -187,6 +187,16 @@
             margin-left: 10px;
         }
 
+        .stat-label-note {
+            display: block;
+            font-size: 0.75em;
+            color: #999;
+            font-weight: 400;
+            font-style: italic;
+            margin-top: 5px;
+            margin-left: 0;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -737,8 +747,26 @@
             return (
                 <div className="container">
                     <div className="header">
-                        <h1>🏊‍♂️🚴‍♀️🏃‍♂️ Triathlon Results Analyzer</h1>
-                        <p>Compare your performance against other athletes</p>
+                        <h1>🏊‍♂️🚴‍♀️🏃‍♂️ Triathlon Results Analyzer 🏊‍♂️🚴‍♀️🏃‍♂️</h1>
+                        <p>
+                            Compare your performance against other athletes.
+                        </p>
+                        <br />
+                        <p> This site uses race data from the{' '}
+                            <a
+                                href="https://my.raceresult.com/367536/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{color: 'white', textDecoration: 'underline', fontWeight: '600'}}
+                            >
+                                2025 Alpha Win Napa Valley Fall Triathlon
+                            </a>
+                            {' '}held on October 25, 2025 in Napa, California.
+                        </p>
+                        <br />
+                        <p>
+                            Note that due to weather conditions on the day of the race, the swim portion was cancelled and replaced with a run of similar distance.
+                        </p>
                     </div>
 
                     <div className="content">
@@ -912,6 +940,7 @@
                                             </span>
                                         )}
                                     </h3>
+                                    <span className="stat-label-note">Note: Swim portion was cancelled and replaced with a run of similar distance</span>
                                     <div style={{height: '300px', position: 'relative'}}>
                                         <canvas ref={swimChartRef}></canvas>
                                     </div>
