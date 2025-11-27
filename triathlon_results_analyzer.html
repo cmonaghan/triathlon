@@ -197,6 +197,30 @@
             margin-left: 0;
         }
 
+        .footer {
+            margin-top: 60px;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+            background-color: #f8f9fa;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -995,6 +1019,9 @@
                                 <p>Select an event and enter an athlete name to see detailed results</p>
                             </div>
                         )}
+                    </div>
+                    <div className="footer">
+                        <p>This site was created by Christian Monaghan. See more of his work at <a href="https://woolgathering.io" target="_blank" rel="noopener noreferrer">woolgathering.io</a>.</p>
                     </div>
                 </div>
             );
