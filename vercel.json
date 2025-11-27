@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/2025-napa",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/2025-napa",
