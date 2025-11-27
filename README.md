@@ -1,4 +1,4 @@
-# Triathlon Results Analyzer
+# Triathlon Analysis
 
 An interactive static website that allows you to analyze triathlon finish times and compare your performance against other athletes using bell curve distributions. Enter your name to see where your times fall within the distribution for swim, bike, run, and overall segments.
 
