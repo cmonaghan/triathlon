@@ -315,12 +315,15 @@
             const ageGroups = useMemo(() => {
                 if (!selectedEvent) return [];
                 const filtered = data.filter(row => row.Event === selectedEvent);
-                return [...new Set(filtered.map(row => row.AgeGroup))].filter(Boolean).sort();
+                return [...new Set(filtered.map(row => row.Age_Group))].filter(Boolean).sort();
             }, [data, selectedEvent]);
 
             const timeToSeconds = (timeStr) => {
                 if (!timeStr || timeStr === '-1') return null;
-                const parts = timeStr.split(':').map(Number);
+                // Convert to string if it's not already
+                const timeString = String(timeStr);
+                if (!timeString || timeString === '-1' || timeString === 'null' || timeString === 'undefined') return null;
+                const parts = timeString.split(':').map(Number);
                 if (parts.length === 3) {
                     return parts[0] * 3600 + parts[1] * 60 + parts[2];
                 } else if (parts.length === 2) {
@@ -348,9 +351,7 @@
 
             const filteredData = useMemo(() => {
                 let filtered = data.filter(row =>
-                    row.Event === selectedEvent &&
-                    row.Status !== 'DNF' &&
-                    row.Status !== 'DSQ'
+                    row.Event === selectedEvent
                 );
 
                 if (selectedGender !== 'All') {
@@ -358,15 +359,35 @@
                 }
 
                 if (selectedAgeGroup !== 'All') {
-                    filtered = filtered.filter(row => row.AgeGroup === selectedAgeGroup);
+                    filtered = filtered.filter(row => row.Age_Group === selectedAgeGroup);
                 }
 
                 return filtered;
             }, [data, selectedEvent, selectedGender, selectedAgeGroup]);
 
-            const handleSearch = () => {
-                if (!searchName.trim()) {
-                    setError('Please enter a name to search');
+            // When name is entered, find athlete and set their event
+            useEffect(() => {
+                if (!searchName.trim() || !data.length) {
+                    return;
+                }
+
+                // Find athlete by name (without event filter first)
+                const athlete = data.find(row =>
+                    row.Name &&
+                    row.Name.toLowerCase().includes(searchName.toLowerCase().trim())
+                );
+
+                if (athlete && athlete.Event && athlete.Event !== selectedEvent) {
+                    setSelectedEvent(athlete.Event);
+                }
+            }, [searchName, data]);
+
+            // Auto-update results when name, event, or filters change
+            useEffect(() => {
+                if (!searchName.trim() || !selectedEvent) {
+                    if (!searchName.trim()) {
+                        setError(null);
+                    }
                     return;
                 }
 
@@ -386,15 +407,15 @@
 
                 const comparisonData = filteredData;
 
-                const swimTimes = comparisonData.map(row => timeToSeconds(row.SwimTime)).filter(Boolean).sort((a, b) => a - b);
-                const bikeTimes = comparisonData.map(row => timeToSeconds(row.BikeTime)).filter(Boolean).sort((a, b) => a - b);
-                const runTimes = comparisonData.map(row => timeToSeconds(row.RunTime)).filter(Boolean).sort((a, b) => a - b);
-                const overallTimes = comparisonData.map(row => timeToSeconds(row.OverallTime)).filter(Boolean).sort((a, b) => a - b);
+                const swimTimes = comparisonData.map(row => timeToSeconds(row.Swim_Time)).filter(Boolean).sort((a, b) => a - b);
+                const bikeTimes = comparisonData.map(row => timeToSeconds(row.Bike_Time)).filter(Boolean).sort((a, b) => a - b);
+                const runTimes = comparisonData.map(row => timeToSeconds(row.Run_Time)).filter(Boolean).sort((a, b) => a - b);
+                const overallTimes = comparisonData.map(row => timeToSeconds(row.Finish_Time)).filter(Boolean).sort((a, b) => a - b);
 
-                const athleteSwim = timeToSeconds(athlete.SwimTime);
-                const athleteBike = timeToSeconds(athlete.BikeTime);
-                const athleteRun = timeToSeconds(athlete.RunTime);
-                const athleteOverall = timeToSeconds(athlete.OverallTime);
+                const athleteSwim = timeToSeconds(athlete.Swim_Time);
+                const athleteBike = timeToSeconds(athlete.Bike_Time);
+                const athleteRun = timeToSeconds(athlete.Run_Time);
+                const athleteOverall = timeToSeconds(athlete.Finish_Time);
 
                 setAthleteResult({
                     ...athlete,
@@ -413,17 +434,17 @@
                         totalAthletes: comparisonData.length
                     }
                 });
-            };
+            }, [searchName, selectedEvent, filteredData, data]);
 
             const generateDistributionData = (segment) => {
                 if (!athleteResult) return [];
 
                 const times = filteredData.map(row => {
                     switch(segment) {
-                        case 'swim': return timeToSeconds(row.SwimTime);
-                        case 'bike': return timeToSeconds(row.BikeTime);
-                        case 'run': return timeToSeconds(row.RunTime);
-                        case 'overall': return timeToSeconds(row.OverallTime);
+                        case 'swim': return timeToSeconds(row.Swim_Time);
+                        case 'bike': return timeToSeconds(row.Bike_Time);
+                        case 'run': return timeToSeconds(row.Run_Time);
+                        case 'overall': return timeToSeconds(row.Finish_Time);
                         default: return null;
                     }
                 }).filter(Boolean).sort((a, b) => a - b);
@@ -561,7 +582,6 @@
                                     placeholder="Enter athlete name..."
                                     value={searchName}
                                     onChange={(e) => setSearchName(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                             </div>
 
@@ -570,10 +590,9 @@
                                     <label>Event</label>
                                     <select
                                         value={selectedEvent}
-                                        onChange={(e) => {
-                                            setSelectedEvent(e.target.value);
-                                            setAthleteResult(null);
-                                        }}
+                                        onChange={(e) => setSelectedEvent(e.target.value)}
+                                        disabled={!!searchName.trim()}
+                                        style={searchName.trim() ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
                                     >
                                         <option value="">Select Event</option>
                                         {events.map(event => (
@@ -586,10 +605,7 @@
                                     <label>Gender Filter</label>
                                     <select
                                         value={selectedGender}
-                                        onChange={(e) => {
-                                            setSelectedGender(e.target.value);
-                                            setAthleteResult(null);
-                                        }}
+                                        onChange={(e) => setSelectedGender(e.target.value)}
                                     >
                                         <option value="All">All Genders</option>
                                         <option value="Male">Male</option>
@@ -602,10 +618,7 @@
                                     <label>Age Group Filter</label>
                                     <select
                                         value={selectedAgeGroup}
-                                        onChange={(e) => {
-                                            setSelectedAgeGroup(e.target.value);
-                                            setAthleteResult(null);
-                                        }}
+                                        onChange={(e) => setSelectedAgeGroup(e.target.value)}
                                     >
                                         <option value="All">All Age Groups</option>
                                         {ageGroups.map(ag => (
@@ -614,14 +627,6 @@
                                     </select>
                                 </div>
                             </div>
-
-                            <button
-                                className="button"
-                                onClick={handleSearch}
-                                disabled={!selectedEvent || !searchName.trim()}
-                            >
-                                Search & Analyze
-                            </button>
                         </div>
 
                         {error && (
@@ -643,11 +648,11 @@
                                         </div>
                                         <div className="info-item">
                                             <div className="label">Age Group</div>
-                                            <div className="value">{athleteResult.AgeGroup}</div>
+                                            <div className="value">{athleteResult.Age_Group}</div>
                                         </div>
                                         <div className="info-item">
                                             <div className="label">Overall Place</div>
-                                            <div className="value">#{athleteResult.OverallPlace}</div>
+                                            <div className="value">#{athleteResult.Place}</div>
                                         </div>
                                         <div className="info-item">
                                             <div className="label">Club</div>
@@ -664,34 +669,34 @@
                                 <div className="stats-grid">
                                     <div className="stat-card">
                                         <div className="stat-label">🏊‍♂️ Swim Time</div>
-                                        <div className="stat-value">{athleteResult.SwimTime}</div>
+                                        <div className="stat-value">{athleteResult.Swim_Time}</div>
                                         <div className="stat-detail">
                                             {athleteResult.swimPercentile}th percentile
-                                            <br/>Rank: {athleteResult.SwimRank}
+                                            <br/>Rank: {athleteResult.Swim_Rank}
                                         </div>
                                     </div>
                                     <div className="stat-card">
                                         <div className="stat-label">🚴‍♀️ Bike Time</div>
-                                        <div className="stat-value">{athleteResult.BikeTime}</div>
+                                        <div className="stat-value">{athleteResult.Bike_Time}</div>
                                         <div className="stat-detail">
                                             {athleteResult.bikePercentile}th percentile
-                                            <br/>Rank: {athleteResult.BikeRank} ({athleteResult.BikeMPH} mph)
+                                            <br/>Rank: {athleteResult.Bike_Rank} ({athleteResult.Bike_MPH} mph)
                                         </div>
                                     </div>
                                     <div className="stat-card">
                                         <div className="stat-label">🏃‍♂️ Run Time</div>
-                                        <div className="stat-value">{athleteResult.RunTime}</div>
+                                        <div className="stat-value">{athleteResult.Run_Time}</div>
                                         <div className="stat-detail">
                                             {athleteResult.runPercentile}th percentile
-                                            <br/>Rank: {athleteResult.RunRank} ({athleteResult.RunPace} pace)
+                                            <br/>Rank: {athleteResult.Run_Rank} ({athleteResult.Run_Pace} pace)
                                         </div>
                                     </div>
                                     <div className="stat-card">
                                         <div className="stat-label">⏱️ Overall Time</div>
-                                        <div className="stat-value">{athleteResult.OverallTime}</div>
+                                        <div className="stat-value">{athleteResult.Finish_Time}</div>
                                         <div className="stat-detail">
                                             {athleteResult.overallPercentile}th percentile
-                                            <br/>Place: {athleteResult.OverallPlace}
+                                            <br/>Place: {athleteResult.Place}
                                         </div>
                                     </div>
                                 </div>
@@ -748,7 +753,7 @@
 
                         {!athleteResult && !error && selectedEvent && (
                             <div className="no-results">
-                                <p>Enter an athlete name and click "Search & Analyze" to see results</p>
+                                <p>Enter an athlete name to see results</p>
                                 <p style={{marginTop: '10px', fontSize: '0.9em', color: '#bbb'}}>
                                     Currently viewing: {selectedEvent}
                                     {selectedGender !== 'All' && ` - ${selectedGender}`}
