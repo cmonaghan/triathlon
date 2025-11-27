@@ -367,10 +367,36 @@
                 return [...new Set(data.map(row => row.Event))].filter(Boolean).sort();
             }, [data]);
 
+            // Extract age group from strings like "Female 10-14" -> "10-14"
+            const extractAgeGroup = (ageGroupStr) => {
+                if (!ageGroupStr) return null;
+                // Handle special cases
+                if (ageGroupStr.includes('Overall') || ageGroupStr === 'DNF') {
+                    return ageGroupStr;
+                }
+                // Extract age range (e.g., "10-14", "25-29", "9 & Under")
+                const match = ageGroupStr.match(/(\d+\s*&\s*Under|\d+-\d+)/);
+                return match ? match[1] : ageGroupStr;
+            };
+
             const ageGroups = useMemo(() => {
                 if (!selectedEvent) return [];
                 const filtered = data.filter(row => row.Event === selectedEvent);
-                return [...new Set(filtered.map(row => row.Age_Group))].filter(Boolean).sort();
+                const extractedGroups = filtered
+                    .map(row => extractAgeGroup(row.Age_Group))
+                    .filter(Boolean);
+                return [...new Set(extractedGroups)].sort((a, b) => {
+                    // Sort special cases first
+                    if (a === 'DNF' || a.includes('Overall')) return 1;
+                    if (b === 'DNF' || b.includes('Overall')) return -1;
+                    // Sort "9 & Under" first
+                    if (a.includes('& Under')) return -1;
+                    if (b.includes('& Under')) return 1;
+                    // Extract first number for numeric sorting
+                    const aNum = parseInt(a.match(/\d+/)?.[0] || '999');
+                    const bNum = parseInt(b.match(/\d+/)?.[0] || '999');
+                    return aNum - bNum;
+                });
             }, [data, selectedEvent]);
 
             const autocompleteSuggestions = useMemo(() => {
@@ -438,7 +464,10 @@
                 }
 
                 if (selectedAgeGroup !== 'All') {
-                    filtered = filtered.filter(row => row.Age_Group === selectedAgeGroup);
+                    filtered = filtered.filter(row => {
+                        const extractedAge = extractAgeGroup(row.Age_Group);
+                        return extractedAge === selectedAgeGroup;
+                    });
                 }
 
                 return filtered;
@@ -745,7 +774,7 @@
                                                 >
                                                     <div className="autocomplete-item-name">{athlete.Name}</div>
                                                     <div className="autocomplete-item-details">
-                                                        {athlete.Event} • {athlete.Gender} • {athlete.Age_Group}
+                                                        {athlete.Event} • {athlete.Gender} • {extractAgeGroup(athlete.Age_Group)}
                                                     </div>
                                                 </div>
                                             ))}
@@ -817,7 +846,7 @@
                                         </div>
                                         <div className="info-item">
                                             <div className="label">Age Group</div>
-                                            <div className="value">{athleteResult.Age_Group}</div>
+                                            <div className="value">{extractAgeGroup(athleteResult.Age_Group)}</div>
                                         </div>
                                         <div className="info-item">
                                             <div className="label">Overall Place</div>
