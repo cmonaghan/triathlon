@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triathlon Results Analyzer</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .search-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e4e8;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .athlete-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .athlete-card h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .athlete-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-item .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .info-item .value {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container h3 {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .percentile-badge {
+            display: inline-block;
+            background: #ffd700;
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-card .stat-detail {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        function TriathlonAnalyzer() {
+            const [data, setData] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+
+            const [searchName, setSearchName] = useState('');
+            const [selectedEvent, setSelectedEvent] = useState('');
+            const [selectedGender, setSelectedGender] = useState('All');
+            const [selectedAgeGroup, setSelectedAgeGroup] = useState('All');
+
+            const [athleteResult, setAthleteResult] = useState(null);
+
+            const swimChartRef = useRef(null);
+            const bikeChartRef = useRef(null);
+            const runChartRef = useRef(null);
+            const overallChartRef = useRef(null);
+
+            const chartInstances = useRef({});
+
+            useEffect(() => {
+                fetch('./complete_triathlon_results.csv')
+                    .then(response => response.text())
+                    .then(csvText => {
+                        Papa.parse(csvText, {
+                            header: true,
+                            dynamicTyping: true,
+                            skipEmptyLines: true,
+                            complete: (results) => {
+                                setData(results.data);
+                                setLoading(false);
+                                if (results.data.length > 0) {
+                                    setSelectedEvent(results.data[0].Event);
+                                }
+                            },
+                            error: (error) => {
+                                setError('Error parsing CSV: ' + error.message);
+                                setLoading(false);
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        setError('Error loading data: ' + err.message);
+                        setLoading(false);
+                    });
+            }, []);
+
+            const events = useMemo(() => {
+                return [...new Set(data.map(row => row.Event))].filter(Boolean).sort();
+            }, [data]);
+
+            const ageGroups = useMemo(() => {
+                if (!selectedEvent) return [];
+                const filtered = data.filter(row => row.Event === selectedEvent);
+                return [...new Set(filtered.map(row => row.AgeGroup))].filter(Boolean).sort();
+            }, [data, selectedEvent]);
+
+            const timeToSeconds = (timeStr) => {
+                if (!timeStr || timeStr === '-1') return null;
+                const parts = timeStr.split(':').map(Number);
+                if (parts.length === 3) {
+                    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+                } else if (parts.length === 2) {
+                    return parts[0] * 60 + parts[1];
+                }
+                return null;
+            };
+
+            const secondsToTime = (seconds) => {
+                if (!seconds) return 'N/A';
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = Math.floor(seconds % 60);
+                if (h > 0) {
+                    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            };
+
+            const calculatePercentile = (value, sortedValues) => {
+                if (!value || !sortedValues.length) return null;
+                const rank = sortedValues.filter(v => v <= value).length;
+                return Math.round((rank / sortedValues.length) * 100);
+            };
+
+            const filteredData = useMemo(() => {
+                let filtered = data.filter(row =>
+                    row.Event === selectedEvent &&
+                    row.Status !== 'DNF' &&
+                    row.Status !== 'DSQ'
+                );
+
+                if (selectedGender !== 'All') {
+                    filtered = filtered.filter(row => row.Gender === selectedGender);
+                }
+
+                if (selectedAgeGroup !== 'All') {
+                    filtered = filtered.filter(row => row.AgeGroup === selectedAgeGroup);
+                }
+
+                return filtered;
+            }, [data, selectedEvent, selectedGender, selectedAgeGroup]);
+
+            const handleSearch = () => {
+                if (!searchName.trim()) {
+                    setError('Please enter a name to search');
+                    return;
+                }
+
+                const athlete = data.find(row =>
+                    row.Name &&
+                    row.Name.toLowerCase().includes(searchName.toLowerCase().trim()) &&
+                    row.Event === selectedEvent
+                );
+
+                if (!athlete) {
+                    setError(`No athlete found with name "${searchName}" in ${selectedEvent}`);
+                    setAthleteResult(null);
+                    return;
+                }
+
+                setError(null);
+
+                const comparisonData = filteredData;
+
+                const swimTimes = comparisonData.map(row => timeToSeconds(row.SwimTime)).filter(Boolean).sort((a, b) => a - b);
+                const bikeTimes = comparisonData.map(row => timeToSeconds(row.BikeTime)).filter(Boolean).sort((a, b) => a - b);
+                const runTimes = comparisonData.map(row => timeToSeconds(row.RunTime)).filter(Boolean).sort((a, b) => a - b);
+                const overallTimes = comparisonData.map(row => timeToSeconds(row.OverallTime)).filter(Boolean).sort((a, b) => a - b);
+
+                const athleteSwim = timeToSeconds(athlete.SwimTime);
+                const athleteBike = timeToSeconds(athlete.BikeTime);
+                const athleteRun = timeToSeconds(athlete.RunTime);
+                const athleteOverall = timeToSeconds(athlete.OverallTime);
+
+                setAthleteResult({
+                    ...athlete,
+                    swimSeconds: athleteSwim,
+                    bikeSeconds: athleteBike,
+                    runSeconds: athleteRun,
+                    overallSeconds: athleteOverall,
+                    swimPercentile: calculatePercentile(athleteSwim, swimTimes),
+                    bikePercentile: calculatePercentile(athleteBike, bikeTimes),
+                    runPercentile: calculatePercentile(athleteRun, runTimes),
+                    overallPercentile: calculatePercentile(athleteOverall, overallTimes),
+                    comparisonGroup: {
+                        event: selectedEvent,
+                        gender: selectedGender,
+                        ageGroup: selectedAgeGroup,
+                        totalAthletes: comparisonData.length
+                    }
+                });
+            };
+
+            const generateDistributionData = (segment) => {
+                if (!athleteResult) return [];
+
+                const times = filteredData.map(row => {
+                    switch(segment) {
+                        case 'swim': return timeToSeconds(row.SwimTime);
+                        case 'bike': return timeToSeconds(row.BikeTime);
+                        case 'run': return timeToSeconds(row.RunTime);
+                        case 'overall': return timeToSeconds(row.OverallTime);
+                        default: return null;
+                    }
+                }).filter(Boolean).sort((a, b) => a - b);
+
+                const athleteTime = athleteResult[`${segment}Seconds`];
+
+                if (!times.length || !athleteTime) return [];
+
+                const min = Math.min(...times);
+                const max = Math.max(...times);
+                const binCount = 20;
+                const binSize = (max - min) / binCount;
+
+                const bins = Array.from({ length: binCount }, (_, i) => {
+                    const binStart = min + i * binSize;
+                    const binEnd = binStart + binSize;
+                    const count = times.filter(t => t >= binStart && t < binEnd).length;
+                    const isAthleteBin = athleteTime >= binStart && athleteTime < binEnd;
+
+                    return {
+                        range: `${secondsToTime(binStart)}`,
+                        count,
+                        binStart,
+                        binEnd,
+                        isAthleteBin
+                    };
+                });
+
+                return bins;
+            };
+
+            useEffect(() => {
+                if (!athleteResult) return;
+
+                // Destroy existing charts
+                Object.values(chartInstances.current).forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+                chartInstances.current = {};
+
+                // Create charts for each segment
+                ['swim', 'bike', 'run', 'overall'].forEach(segment => {
+                    const canvasRef = {
+                        swim: swimChartRef,
+                        bike: bikeChartRef,
+                        run: runChartRef,
+                        overall: overallChartRef
+                    }[segment];
+
+                    if (!canvasRef.current) return;
+
+                    const distributionData = generateDistributionData(segment);
+
+                    const ctx = canvasRef.current.getContext('2d');
+                    chartInstances.current[segment] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: distributionData.map(d => d.range),
+                            datasets: [{
+                                label: 'Number of Athletes',
+                                data: distributionData.map(d => d.count),
+                                backgroundColor: distributionData.map(d =>
+                                    d.isAthleteBin ? '#f5576c' : '#667eea'
+                                ),
+                                borderRadius: 8,
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title: (items) => {
+                                            const index = items[0].dataIndex;
+                                            const bin = distributionData[index];
+                                            return `${bin.range} - ${secondsToTime(bin.binEnd)}`;
+                                        },
+                                        label: (context) => {
+                                            return `Athletes: ${context.parsed.y}`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        maxRotation: 45,
+                                        minRotation: 45,
+                                        font: {
+                                            size: 10
+                                        }
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Number of Athletes'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+
+                return () => {
+                    Object.values(chartInstances.current).forEach(chart => {
+                        if (chart) chart.destroy();
+                    });
+                };
+            }, [athleteResult, filteredData]);
+
+            if (loading) {
+                return <div className="loading">Loading triathlon data...</div>;
+            }
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🏊‍♂️🚴‍♀️🏃‍♂️ Triathlon Results Analyzer</h1>
+                        <p>Compare your performance against other athletes</p>
+                    </div>
+
+                    <div className="content">
+                        <div className="search-section">
+                            <div className="form-group">
+                                <label>Athlete Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter athlete name..."
+                                    value={searchName}
+                                    onChange={(e) => setSearchName(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                                />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Event</label>
+                                    <select
+                                        value={selectedEvent}
+                                        onChange={(e) => {
+                                            setSelectedEvent(e.target.value);
+                                            setAthleteResult(null);
+                                        }}
+                                    >
+                                        <option value="">Select Event</option>
+                                        {events.map(event => (
+                                            <option key={event} value={event}>{event}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Gender Filter</label>
+                                    <select
+                                        value={selectedGender}
+                                        onChange={(e) => {
+                                            setSelectedGender(e.target.value);
+                                            setAthleteResult(null);
+                                        }}
+                                    >
+                                        <option value="All">All Genders</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Agender">Agender</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Age Group Filter</label>
+                                    <select
+                                        value={selectedAgeGroup}
+                                        onChange={(e) => {
+                                            setSelectedAgeGroup(e.target.value);
+                                            setAthleteResult(null);
+                                        }}
+                                    >
+                                        <option value="All">All Age Groups</option>
+                                        {ageGroups.map(ag => (
+                                            <option key={ag} value={ag}>{ag}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button
+                                className="button"
+                                onClick={handleSearch}
+                                disabled={!selectedEvent || !searchName.trim()}
+                            >
+                                Search & Analyze
+                            </button>
+                        </div>
+
+                        {error && (
+                            <div className="error-message">{error}</div>
+                        )}
+
+                        {athleteResult && (
+                            <div className="results-section">
+                                <div className="athlete-card">
+                                    <h2>{athleteResult.Name}</h2>
+                                    <div className="athlete-info">
+                                        <div className="info-item">
+                                            <div className="label">Age</div>
+                                            <div className="value">{athleteResult.Age || 'N/A'}</div>
+                                        </div>
+                                        <div className="info-item">
+                                            <div className="label">Gender</div>
+                                            <div className="value">{athleteResult.Gender}</div>
+                                        </div>
+                                        <div className="info-item">
+                                            <div className="label">Age Group</div>
+                                            <div className="value">{athleteResult.AgeGroup}</div>
+                                        </div>
+                                        <div className="info-item">
+                                            <div className="label">Overall Place</div>
+                                            <div className="value">#{athleteResult.OverallPlace}</div>
+                                        </div>
+                                        <div className="info-item">
+                                            <div className="label">Club</div>
+                                            <div className="value">{athleteResult.Club || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <p style={{marginTop: '15px', fontSize: '0.9em', opacity: '0.9'}}>
+                                        Comparing against: {athleteResult.comparisonGroup.totalAthletes} athletes
+                                        {selectedGender !== 'All' && ` (${selectedGender})`}
+                                        {selectedAgeGroup !== 'All' && ` in ${selectedAgeGroup}`}
+                                    </p>
+                                </div>
+
+                                <div className="stats-grid">
+                                    <div className="stat-card">
+                                        <div className="stat-label">🏊‍♂️ Swim Time</div>
+                                        <div className="stat-value">{athleteResult.SwimTime}</div>
+                                        <div className="stat-detail">
+                                            {athleteResult.swimPercentile}th percentile
+                                            <br/>Rank: {athleteResult.SwimRank}
+                                        </div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-label">🚴‍♀️ Bike Time</div>
+                                        <div className="stat-value">{athleteResult.BikeTime}</div>
+                                        <div className="stat-detail">
+                                            {athleteResult.bikePercentile}th percentile
+                                            <br/>Rank: {athleteResult.BikeRank} ({athleteResult.BikeMPH} mph)
+                                        </div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-label">🏃‍♂️ Run Time</div>
+                                        <div className="stat-value">{athleteResult.RunTime}</div>
+                                        <div className="stat-detail">
+                                            {athleteResult.runPercentile}th percentile
+                                            <br/>Rank: {athleteResult.RunRank} ({athleteResult.RunPace} pace)
+                                        </div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-label">⏱️ Overall Time</div>
+                                        <div className="stat-value">{athleteResult.OverallTime}</div>
+                                        <div className="stat-detail">
+                                            {athleteResult.overallPercentile}th percentile
+                                            <br/>Place: {athleteResult.OverallPlace}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="chart-container">
+                                    <h3>
+                                        Swim Time Distribution
+                                        <span className="percentile-badge">
+                                            {athleteResult.swimPercentile}th Percentile
+                                        </span>
+                                    </h3>
+                                    <div style={{height: '300px', position: 'relative'}}>
+                                        <canvas ref={swimChartRef}></canvas>
+                                    </div>
+                                </div>
+
+                                <div className="chart-container">
+                                    <h3>
+                                        Bike Time Distribution
+                                        <span className="percentile-badge">
+                                            {athleteResult.bikePercentile}th Percentile
+                                        </span>
+                                    </h3>
+                                    <div style={{height: '300px', position: 'relative'}}>
+                                        <canvas ref={bikeChartRef}></canvas>
+                                    </div>
+                                </div>
+
+                                <div className="chart-container">
+                                    <h3>
+                                        Run Time Distribution
+                                        <span className="percentile-badge">
+                                            {athleteResult.runPercentile}th Percentile
+                                        </span>
+                                    </h3>
+                                    <div style={{height: '300px', position: 'relative'}}>
+                                        <canvas ref={runChartRef}></canvas>
+                                    </div>
+                                </div>
+
+                                <div className="chart-container">
+                                    <h3>
+                                        Overall Time Distribution
+                                        <span className="percentile-badge">
+                                            {athleteResult.overallPercentile}th Percentile
+                                        </span>
+                                    </h3>
+                                    <div style={{height: '300px', position: 'relative'}}>
+                                        <canvas ref={overallChartRef}></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {!athleteResult && !error && selectedEvent && (
+                            <div className="no-results">
+                                <p>Enter an athlete name and click "Search & Analyze" to see results</p>
+                                <p style={{marginTop: '10px', fontSize: '0.9em', color: '#bbb'}}>
+                                    Currently viewing: {selectedEvent}
+                                    {selectedGender !== 'All' && ` - ${selectedGender}`}
+                                    {selectedAgeGroup !== 'All' && ` - ${selectedAgeGroup}`}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TriathlonAnalyzer />, document.getElementById('root'));
+    </script>
+</body>
+</html>
