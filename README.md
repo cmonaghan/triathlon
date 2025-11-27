@@ -56,7 +56,11 @@ This uses the dataset from my most recent triathlon, which was publicly released
 2. **Deploy**:
 
    ```bash
+   # dev
    vercel
+
+   # prod
+   vercel --prod
    ```
 
 3. **Follow the prompts** to link your project and deploy
