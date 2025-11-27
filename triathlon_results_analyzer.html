@@ -337,7 +337,7 @@
             const chartInstances = useRef({});
 
             useEffect(() => {
-                fetch('./complete_triathlon_results.csv')
+                fetch('/complete_triathlon_results.csv')
                     .then(response => response.text())
                     .then(csvText => {
                         Papa.parse(csvText, {

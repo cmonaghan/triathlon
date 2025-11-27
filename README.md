@@ -24,7 +24,7 @@ This uses the dataset from my most recent triathlon, which was publicly released
 
 ### Prerequisites
 
-- Python 3 (for local server)
+- Python 3 (for local server) OR Vercel CLI (for deployment)
 - A modern web browser
 
 ### Running Locally
@@ -42,6 +42,38 @@ This uses the dataset from my most recent triathlon, which was publicly released
 3. **Stop the server**:
 
    Press `Ctrl+C` in the terminal when you're done
+
+### Deploying to Vercel
+
+#### Option 1: Using Vercel CLI
+
+1. **Install Vercel CLI** (if not already installed):
+
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Deploy**:
+
+   ```bash
+   vercel
+   ```
+
+3. **Follow the prompts** to link your project and deploy
+
+#### Option 2: Using GitHub Integration
+
+1. **Push your code to GitHub**
+
+2. **Import project in Vercel**:
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Vercel will automatically detect it as a static site and deploy
+
+3. **Your site will be live** at: `https://your-project.vercel.app/2025-napa`
+
+The `vercel.json` configuration file routes `/2025-napa` to serve the main HTML file, keeping the URL clean.
 
 ## How to Use
 
@@ -69,6 +101,7 @@ This uses the dataset from my most recent triathlon, which was publicly released
 triathlon/
 ├── complete_triathlon_results.csv    # Triathlon results dataset
 ├── triathlon_results_analyzer.html   # Main application file
+├── vercel.json                       # Vercel deployment configuration
 └── README.md                         # This file
 ```
 

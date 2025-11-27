@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/2025-napa",
+      "destination": "/triathlon_results_analyzer.html"
+    },
+    {
+      "source": "/2025-napa/",
+      "destination": "/triathlon_results_analyzer.html"
+    }
+  ]
+}
