@@ -110,7 +110,7 @@ triathlon/
 - **Frontend**: React (via CDN), Chart.js for visualizations
 - **Data Parsing**: PapaParse for CSV parsing
 - **Styling**: Custom CSS with gradient designs
-- **No Build Process**: Single HTML file with inline React code (uses Babel standalone for transpilation)
+- **No Build Process**: The React code uses `React.createElement` calls directly (no JSX), so no transpilation is needed
 
 ## Data Format
 
